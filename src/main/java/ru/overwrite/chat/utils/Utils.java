@@ -115,7 +115,12 @@ public class Utils {
         };
     }
 
+    public boolean USE_PAPI;
+
     public String replacePlaceholders(Player player, String message) {
+        if (!USE_PAPI) {
+            return message;
+        }
         if (PlaceholderAPI.containsPlaceholders(message)) {
             message = PlaceholderAPI.setPlaceholders(player, message);
         }

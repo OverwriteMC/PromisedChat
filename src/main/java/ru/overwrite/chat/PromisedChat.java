@@ -10,6 +10,7 @@ import org.bukkit.plugin.ServicesManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.overwrite.chat.configuration.Config;
 import ru.overwrite.chat.utils.Metrics;
+import ru.overwrite.chat.utils.Utils;
 
 import java.util.logging.Logger;
 
@@ -36,6 +37,7 @@ public final class PromisedChat extends JavaPlugin {
         setupChat(servicesManager);
         setupPerms(servicesManager);
         PluginManager pluginManager = getServer().getPluginManager();
+        setupPlaceholders(pluginManager);
         pluginManager.registerEvents(new ChatListener(this), this);
         pluginManager.registerEvents(new CommandListener(this), this);
         autoMessages = new AutoMessages(this);
@@ -74,6 +76,14 @@ public final class PromisedChat extends JavaPlugin {
         if (perms != null) {
             getLogger().info("Менеджер прав подключён!");
         }
+    }
+
+    private void setupPlaceholders(PluginManager pluginManager) {
+        if (!pluginManager.isPluginEnabled("PlaceholderAPI")) {
+            return;
+        }
+        Utils.USE_PAPI = true;
+        getLogger().info("Плейсхолдеры подключены!");
     }
 
     private <T> T getProvider(ServicesManager servicesManager, Class<T> clazz) {

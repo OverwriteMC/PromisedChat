@@ -34,10 +34,10 @@ public final class PromisedChat extends JavaPlugin {
         PluginManager pluginManager = getServer().getPluginManager();
         setupPlaceholders(pluginManager);
         pluginManager.registerEvents(new ChatListener(this), this);
-        pluginManager.registerEvents(new PromisedChatCommand(this), this);
+        pluginManager.registerEvents(new CommandListener(this), this);
         autoMessageManager = new AutoMessageManager(this);
         autoMessageManager.startMSG();
-        getCommand("promisedchat").setExecutor(new CommandClass(this));
+        getCommand("promisedchat").setExecutor(new PromisedChatCommand(this));
         new Metrics(this, 20699);
         long endTime = System.currentTimeMillis();
         getLogger().info("Plugin started in " + (endTime - startTime) + " ms");

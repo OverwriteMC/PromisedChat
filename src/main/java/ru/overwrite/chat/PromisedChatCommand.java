@@ -1,43 +1,41 @@
 package ru.overwrite.chat;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import ru.overwrite.chat.configuration.Config;
-import ru.overwrite.chat.utils.Utils;
+import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
-public class PromisedChatCommand implements Listener {
+public class PromisedChatCommand implements CommandExecutor {
 
-    private final Config pluginConfig;
+    private final PromisedChat plugin;
 
     public PromisedChatCommand(PromisedChat plugin) {
-        this.pluginConfig = plugin.getPluginConfig();
+        this.plugin = plugin;
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void playerCommand(PlayerCommandPreprocessEvent e) {
-        if (!pluginConfig.newbieChat) {
-            return;
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String commandlabel, @NotNull String[] args) {
+        if (!sender.hasPermission("pchat.admin")) {
+            sender.sendMessage("§6❖ §7Running §5§lPromisedChat §c§l" + plugin.getDescription().getVersion() + "§7 by §5OverwriteMC");
+            return true;
         }
-        Player p = e.getPlayer();
-        String command = cutCommand(e.getMessage());
-        long time = (System.currentTimeMillis() - p.getFirstPlayed()) / 1000;
-        if (!p.hasPermission("pchat.bypass.newbie") && time <= pluginConfig.newbieCooldown) {
-            for (String cmd : pluginConfig.newbieCommands) {
-                if (!command.equalsIgnoreCase(cmd)) {
-                    continue;
-                }
-                String cooldown = Utils.getTime((int) (pluginConfig.newbieCooldown - time), " ч. ", " мин. ", " сек. ");
-                p.sendMessage(pluginConfig.newbieMessage.replace("%time%", cooldown));
-                e.setCancelled(true);
-                return;
-            }
+        if (args.length == 0) {
+            sender.sendMessage("§6/" + commandlabel + " reload - перезагрузить конфиг");
+            return true;
         }
-    }
-
-    private String cutCommand(String str) {
-        int index = str.indexOf(' ');
-        return index == -1 ? str : str.substring(0, index);
+        if (args[0].equalsIgnoreCase("reload")) {
+            long startTime = System.currentTimeMillis();
+            plugin.reloadConfig();
+            plugin.setupConfig();
+            Bukkit.getScheduler().cancelTasks(plugin);
+            plugin.getAutoMessageManager().clearData();
+            plugin.getAutoMessageManager().startMSG();
+            long endTime = System.currentTimeMillis();
+            sender.sendMessage("§5§lPromisedChat §7> §aКонфигурация перезагружена за §e" + (endTime - startTime) + " ms");
+            return true;
+        } else {
+            sender.sendMessage("§6❖ §7Running §5§lPromisedChat §c§l" + plugin.getDescription().getVersion() + "§7 by §5OverwriteMC");
+        }
+        return true;
     }
 }

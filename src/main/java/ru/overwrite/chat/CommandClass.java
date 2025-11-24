@@ -28,8 +28,8 @@ public class CommandClass implements CommandExecutor {
             plugin.reloadConfig();
             plugin.setupConfig();
             Bukkit.getScheduler().cancelTasks(plugin);
-            plugin.getAutoMessages().clearData();
-            plugin.getAutoMessages().startMSG();
+            plugin.getAutoMessageManager().clearData();
+            plugin.getAutoMessageManager().startMSG();
             long endTime = System.currentTimeMillis();
             sender.sendMessage("§5§lPromisedChat §7> §aКонфигурация перезагружена за §e" + (endTime - startTime) + " ms");
             return true;

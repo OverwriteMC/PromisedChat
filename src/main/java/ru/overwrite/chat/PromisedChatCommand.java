@@ -7,11 +7,11 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import ru.overwrite.chat.configuration.Config;
 import ru.overwrite.chat.utils.Utils;
 
-public class CommandListener implements Listener {
+public class PromisedChatCommand implements Listener {
 
     private final Config pluginConfig;
 
-    public CommandListener(PromisedChat plugin) {
+    public PromisedChatCommand(PromisedChat plugin) {
         this.pluginConfig = plugin.getPluginConfig();
     }
 

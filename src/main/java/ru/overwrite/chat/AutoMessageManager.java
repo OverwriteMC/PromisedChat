@@ -11,7 +11,7 @@ import ru.overwrite.chat.utils.Utils;
 import java.util.Collections;
 import java.util.List;
 
-public class AutoMessages {
+public class AutoMessageManager {
 
     private final PromisedChat plugin;
     private final Config pluginConfig;
@@ -21,7 +21,7 @@ public class AutoMessages {
 
     private ObjectList<List<String>> shuffledMessages;
 
-    public AutoMessages(PromisedChat plugin) {
+    public AutoMessageManager(PromisedChat plugin) {
         this.plugin = plugin;
         this.pluginConfig = plugin.getPluginConfig();
     }

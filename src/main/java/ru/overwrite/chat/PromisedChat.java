@@ -12,8 +12,6 @@ import ru.overwrite.chat.configuration.Config;
 import ru.overwrite.chat.utils.Metrics;
 import ru.overwrite.chat.utils.Utils;
 
-import java.util.logging.Logger;
-
 @Getter
 public final class PromisedChat extends JavaPlugin {
 
@@ -23,7 +21,7 @@ public final class PromisedChat extends JavaPlugin {
 
     private final Config pluginConfig = new Config();
 
-    private AutoMessages autoMessages;
+    private AutoMessageManager autoMessageManager;
 
     @Override
     public void onEnable() {
@@ -39,9 +37,9 @@ public final class PromisedChat extends JavaPlugin {
         PluginManager pluginManager = getServer().getPluginManager();
         setupPlaceholders(pluginManager);
         pluginManager.registerEvents(new ChatListener(this), this);
-        pluginManager.registerEvents(new CommandListener(this), this);
-        autoMessages = new AutoMessages(this);
-        autoMessages.startMSG();
+        pluginManager.registerEvents(new PromisedChatCommand(this), this);
+        autoMessageManager = new AutoMessageManager(this);
+        autoMessageManager.startMSG();
         getCommand("promisedchat").setExecutor(new CommandClass(this));
         new Metrics(this, 20699);
         long endTime = System.currentTimeMillis();

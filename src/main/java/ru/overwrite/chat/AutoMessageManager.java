@@ -1,26 +1,27 @@
 package ru.overwrite.chat;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.overwrite.chat.configuration.Config;
 import ru.overwrite.chat.configuration.data.AutoMessageSettings;
-import ru.overwrite.chat.utils.Utils;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class AutoMessageManager {
 
     private final PromisedChat plugin;
     private final Config pluginConfig;
+    private final Random random = new Random();
 
     private int randomIndex;
     private int sequentialIndex;
 
-    private ObjectList<List<String>> shuffledMessages;
+    private ObjectList<ObjectList<BaseComponent[]>> shuffledMessages;
 
     public AutoMessageManager(PromisedChat plugin) {
         this.plugin = plugin;
@@ -41,7 +42,7 @@ public class AutoMessageManager {
         new BukkitRunnable() {
             @Override
             public void run() {
-                List<String> autoMessage = getAutoMessage();
+                List<BaseComponent[]> autoMessage = getAutoMessage();
                 if (autoMessage == null || autoMessage.isEmpty()) {
                     return;
                 }
@@ -49,19 +50,19 @@ public class AutoMessageManager {
                     if (!p.hasPermission("pchat.automessage")) {
                         continue;
                     }
-                    for (String msg : autoMessage) {
-                        p.sendMessage(Utils.colorize(msg));
+                    for (BaseComponent[] msg : autoMessage) {
+                        p.spigot().sendMessage(msg);
                     }
                 }
             }
         }.runTaskTimerAsynchronously(plugin, 20L, autoMessageSettings.messageInterval() * 20L);
     }
 
-    private List<String> getAutoMessage() {
+    private ObjectList<BaseComponent[]> getAutoMessage() {
         AutoMessageSettings autoMessageSettings = pluginConfig.getAutoMessageSettings();
-        ObjectList<List<String>> messages = autoMessageSettings.messages();
+        ObjectList<ObjectList<BaseComponent[]>> messages = autoMessageSettings.messages();
         if (messages == null || messages.isEmpty()) {
-            return Collections.emptyList();
+            return ObjectList.of();
         }
 
         if (autoMessageSettings.random()) {
@@ -73,16 +74,16 @@ public class AutoMessageManager {
         }
     }
 
-    private void handleRandomRotation(ObjectList<List<String>> messages) {
+    private void handleRandomRotation(ObjectList<ObjectList<BaseComponent[]>> messages) {
         if (shuffledMessages == null || randomIndex >= shuffledMessages.size()) {
-            shuffledMessages = new ObjectArrayList<>(messages);
-            Collections.shuffle(shuffledMessages);
+            shuffledMessages = messages;
+            ObjectLists.shuffle(shuffledMessages, random);
             randomIndex = 0;
         }
         randomIndex++;
     }
 
-    private void handleSequentialRotation(ObjectList<List<String>> messages) {
+    private void handleSequentialRotation(ObjectList<ObjectList<BaseComponent[]>> messages) {
         if (sequentialIndex >= messages.size()) {
             sequentialIndex = 0;
         }

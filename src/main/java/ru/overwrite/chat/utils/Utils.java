@@ -4,11 +4,21 @@ import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import lombok.experimental.UtilityClass;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -215,5 +225,180 @@ public class Utils {
             }
         }
         return new String(chars);
+    }
+
+    public final String HOVER_TEXT_PREFIX = "hoverText={";
+    public final String CLICK_EVENT_PREFIX = "clickEvent={";
+    public final String BUTTON_PREFIX = "button={";
+    public final String[] HOVER_MARKERS = {HOVER_TEXT_PREFIX, CLICK_EVENT_PREFIX};
+
+    private String getBaseMessage(String message, String[] markers) {
+        int endIndex = message.length();
+        for (String marker : markers) {
+            int idx = message.indexOf(marker);
+            if (idx != -1 && idx < endIndex) {
+                endIndex = idx;
+            }
+        }
+        return message.substring(0, endIndex).trim();
+    }
+
+    private String extractValue(String message, String prefix) {
+        int startIndex = message.indexOf(prefix);
+        if (startIndex != -1) {
+            startIndex += prefix.length();
+            int endIndex = findClosingBracket(message, startIndex);
+            if (endIndex != -1) {
+                return message.substring(startIndex, endIndex);
+            }
+        }
+        return null;
+    }
+
+    private int findClosingBracket(String message, int startIndex) {
+        int depth = 0;
+        for (int i = startIndex; i < message.length(); i++) {
+            char c = message.charAt(i);
+            if (c == '{') depth++;
+            else if (c == '}') {
+                if (depth == 0) return i;
+                depth--;
+            }
+        }
+        return -1;
+    }
+
+    private HoverEvent createHoverEvent(String hoverText) {
+        return new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(TextComponent.fromLegacyText(hoverText)));
+    }
+
+    private ClickEvent createClickEvent(String clickEvent) {
+        int separatorIndex = clickEvent.indexOf(';');
+        if (separatorIndex == -1) {
+            throw new IllegalArgumentException("Некорректный формат clickEvent: отсутствует разделитель ';'");
+        }
+
+        String actionStr = clickEvent.substring(0, separatorIndex).trim();
+        String context = clickEvent.substring(separatorIndex + 1).trim();
+
+        return new ClickEvent(ClickEvent.Action.valueOf(actionStr.toUpperCase()), context);
+    }
+
+    private BaseComponent[] parseButtonContent(String buttonContent) {
+        String buttonText = null;
+        String hoverText = null;
+        String clickEventStr = null;
+
+        List<String> parts = getParts(buttonContent);
+
+        for (String part : parts) {
+            if (part.startsWith(HOVER_TEXT_PREFIX)) {
+                hoverText = extractValue(part, HOVER_TEXT_PREFIX);
+            } else if (part.startsWith(CLICK_EVENT_PREFIX)) {
+                clickEventStr = extractValue(part, CLICK_EVENT_PREFIX);
+            } else {
+                if (buttonText == null) buttonText = part;
+                else throw new IllegalArgumentException("Некорректный формат кнопки: несколько текстовых частей.");
+            }
+        }
+
+        if (buttonText == null || buttonText.isEmpty()) {
+            throw new IllegalArgumentException("Кнопка должна содержать текст.");
+        }
+
+        BaseComponent[] components = TextComponent.fromLegacyText(buttonText);
+
+        HoverEvent hover = hoverText != null ? createHoverEvent(hoverText) : null;
+        ClickEvent click = clickEventStr != null ? createClickEvent(clickEventStr) : null;
+
+        for (BaseComponent bc : components) {
+            if (hover != null) bc.setHoverEvent(hover);
+            if (click != null) bc.setClickEvent(click);
+        }
+
+        return components;
+    }
+
+    private ObjectList<String> getParts(String buttonContent) {
+        ObjectList<String> parts = new ObjectArrayList<>();
+        int start = 0, depth = 0;
+        for (int i = 0; i < buttonContent.length(); i++) {
+            char c = buttonContent.charAt(i);
+            if (c == '{') depth++;
+            else if (c == '}') depth--;
+            else if (c == ';' && depth == 0) {
+                parts.add(buttonContent.substring(start, i).trim());
+                start = i + 1;
+            }
+        }
+        parts.add(buttonContent.substring(start).trim());
+        return parts;
+    }
+
+    public BaseComponent[] parseMessage(String formattedMessage, String[] markers) {
+        List<BaseComponent> allComponents = new ArrayList<>();
+        int currentIndex = 0;
+
+        String globalHoverText = null;
+        String globalClickEvent = null;
+
+        while (currentIndex < formattedMessage.length()) {
+            int buttonStart = formattedMessage.indexOf(BUTTON_PREFIX, currentIndex);
+            String currentSegment;
+            if (buttonStart == -1) {
+                currentSegment = formattedMessage.substring(currentIndex);
+            } else {
+                currentSegment = formattedMessage.substring(currentIndex, buttonStart);
+            }
+
+            if (!currentSegment.isEmpty()) {
+
+                globalHoverText = extractValue(currentSegment, HOVER_TEXT_PREFIX);
+                globalClickEvent = extractValue(currentSegment, CLICK_EVENT_PREFIX);
+
+                String cleanMessage = getBaseMessage(currentSegment, markers);
+
+                if (!cleanMessage.isEmpty()) {
+                    allComponents.addAll(Arrays.asList(TextComponent.fromLegacyText(cleanMessage)));
+                }
+            }
+
+            if (buttonStart == -1) {
+                break;
+            }
+
+            int buttonEnd = findClosingBracket(formattedMessage, buttonStart + BUTTON_PREFIX.length());
+            if (buttonEnd == -1) {
+                throw new IllegalArgumentException("Некорректный формат кнопки: отсутствует закрывающая }");
+            }
+
+            String buttonContent = formattedMessage.substring(buttonStart + BUTTON_PREFIX.length(), buttonEnd);
+            BaseComponent[] buttonComponents = parseButtonContent(buttonContent);
+
+            if (buttonStart > 0 && formattedMessage.charAt(buttonStart - 1) == ' ') {
+                allComponents.add(new TextComponent(" "));
+            }
+
+            allComponents.addAll(Arrays.asList(buttonComponents));
+
+            if (buttonEnd + 1 < formattedMessage.length() && formattedMessage.charAt(buttonEnd + 1) == ' ') {
+                allComponents.add(new TextComponent(" "));
+            }
+
+            currentIndex = buttonEnd + 1;
+        }
+
+        if (globalHoverText != null || globalClickEvent != null) {
+
+            HoverEvent hover = globalHoverText != null ? createHoverEvent(globalHoverText) : null;
+            ClickEvent click = globalClickEvent != null ? createClickEvent(globalClickEvent) : null;
+
+            for (BaseComponent bc : allComponents) {
+                if (hover != null && bc.getHoverEvent() == null) bc.setHoverEvent(hover);
+                if (click != null && bc.getClickEvent() == null) bc.setClickEvent(click);
+            }
+        }
+
+        return allComponents.toArray(new BaseComponent[0]);
     }
 }

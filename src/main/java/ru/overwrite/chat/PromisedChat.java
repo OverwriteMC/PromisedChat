@@ -29,8 +29,8 @@ public final class PromisedChat extends JavaPlugin {
         pluginConfig.setupConfigs(getConfig());
         ServicesManager servicesManager = getServer().getServicesManager();
         setupChat(servicesManager);
-        setupPerms(servicesManager);
         PluginManager pluginManager = getServer().getPluginManager();
+        setupPerms(servicesManager, pluginManager);
         setupPlaceholders(pluginManager);
         pluginManager.registerEvents(new ChatListener(this), this);
         pluginManager.registerEvents(new CommandListener(this), this);
@@ -44,16 +44,22 @@ public final class PromisedChat extends JavaPlugin {
 
     private void setupChat(ServicesManager servicesManager) {
         chat = getProvider(servicesManager, Chat.class);
-        if (chat != null) {
-            getLogger().info("Менеджер чата подключён!");
+        if (chat == null) {
+            getLogger().info("Менеджер чата не подключён!");
+            getLogger().info("Функционал плагина не будет полноценно использован.");
+            return;
         }
+        getLogger().info("Менеджер чата подключён!");
     }
 
-    private void setupPerms(ServicesManager servicesManager) {
-        perms = getProvider(servicesManager, Permission.class);
-        if (perms != null) {
-            getLogger().info("Менеджер прав подключён!");
+    private void setupPerms(ServicesManager servicesManager, PluginManager pluginManager) {
+        perms = pluginManager.isPluginEnabled("LuckPerms") ? getProvider(servicesManager, Permission.class) : null;
+        if (perms == null) {
+            getLogger().info("Менеджер прав не подключён!");
+            getLogger().info("Функционал плагина не будет полноценно использован.");
+            return;
         }
+        getLogger().info("Менеджер прав подключён!");
     }
 
     private void setupPlaceholders(PluginManager pluginManager) {

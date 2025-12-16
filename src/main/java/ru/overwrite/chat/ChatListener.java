@@ -93,7 +93,7 @@ public class ChatListener implements Listener {
             }
             long time = (System.currentTimeMillis() - p.getFirstPlayed()) / 1000;
             if (time <= newbieChatSettings.cooldown()) {
-                String cooldown = Utils.getTime((int) (newbieChatSettings.cooldown() - time), " ч. ", " мин. ", " сек. ");
+                String cooldown = Utils.getTime((int) (newbieChatSettings.cooldown() - time), Config.timeHours, Config.timeMinutes, Config.timeSeconds);
                 p.sendMessage(newbieChatSettings.message().replace("%time%", cooldown));
                 e.setCancelled(true);
                 return true;

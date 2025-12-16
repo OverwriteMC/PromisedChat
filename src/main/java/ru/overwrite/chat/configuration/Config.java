@@ -21,11 +21,18 @@ public class Config {
     private NewbieChatSettings newbieChatSettings;
     private AutoMessageSettings autoMessageSettings;
 
+    public static String timeHours, timeMinutes, timeSeconds;
+
     public void setupConfigs(FileConfiguration config) {
         setupChatFormats(config.getConfigurationSection("chatFormats"));
 
         this.newbieChatSettings = NewbieChatSettings.create(config.getConfigurationSection("newbieChat"));
         this.autoMessageSettings = AutoMessageSettings.create(config.getConfigurationSection("autoMessage"));
+
+        final ConfigurationSection time = config.getConfigurationSection("placeholders.time"); // Потом когда-нить может быть заменено будет
+        timeHours = Utils.colorize(time.getString("hours", " ч."));
+        timeMinutes = Utils.colorize(time.getString("minutes", " мин."));
+        timeSeconds = Utils.colorize(time.getString("seconds", " сек."));
     }
 
     private void setupChatFormats(ConfigurationSection chatFormats) {

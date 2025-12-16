@@ -84,3 +84,10 @@ autoMessage:
     3:
       - "[PromisedChat] &cтретье авто-сообщение с ховертекстом hoverText={Тот самый текст}"
       - "[PromisedChat] &cтретье авто-сообщение с клик ивентом clickEvent={SUGGEST_COMMAND;/say Я нажал на автосообщение в чате!}"
+
+# Плейсхолдеры плагина
+placeholders:
+  time:
+    hours: ' ч. '
+    minutes: ' мин. '
+    seconds: ' сек. '

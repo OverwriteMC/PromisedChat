@@ -3,6 +3,7 @@ package ru.overwrite.chat.configuration.data;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import ru.overwrite.chat.configuration.Config;
 import ru.overwrite.chat.utils.TimedExpiringMap;
 import ru.overwrite.chat.utils.Utils;
 
@@ -94,7 +95,7 @@ public record ChatChannel(
             if (insertionTime != null) {
                 long currentTime = System.currentTimeMillis();
                 long timeRemaining = (insertionTime + cooldownTime) - currentTime;
-                String timeStr = Utils.getTime((int) (timeRemaining / 1000), " ч. ", " мин. ", " сек. ");
+                String timeStr = Utils.getTime((int) (timeRemaining / 1000), Config.timeHours, Config.timeMinutes, Config.timeSeconds);
                 player.sendMessage(cooldownMessage.replace("%time%", timeStr));
                 return true;
             }

@@ -15,8 +15,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import ru.overwrite.chat.configuration.data.ChatChannel;
 import ru.overwrite.chat.configuration.Config;
+import ru.overwrite.chat.configuration.data.ChatChannel;
 import ru.overwrite.chat.configuration.data.NewbieChatSettings;
 import ru.overwrite.chat.utils.Utils;
 
@@ -78,7 +78,7 @@ public class ChatListener implements Listener {
         ChatChannel.HoverSettings hoverSettings = channel.hover();
         if (hoverSettings.hoverEnabled()) {
             e.setCancelled(true);
-            sendHover(p, replacementList, chatFormat, playersInRadius, formatWithMessage, hoverSettings);
+            sendHover(p, replacementList, playersInRadius, formatWithMessage, hoverSettings);
             return;
         }
         e.getRecipients().addAll(playersInRadius);
@@ -102,7 +102,7 @@ public class ChatListener implements Listener {
         return false;
     }
 
-    private void sendHover(Player p, String[] replacementList, String format, Collection<? extends Player> recipients, String formatWithMessage, ChatChannel.HoverSettings hoverSettings) {
+    private void sendHover(Player p, String[] replacementList, Collection<? extends Player> recipients, String formatWithMessage, ChatChannel.HoverSettings hoverSettings) {
         String hoverText = Utils.colorize(Utils.replacePlaceholders(p, Utils.replaceEach(hoverSettings.hoverMessage(), searchList, replacementList)));
         HoverEvent hoverEvent = new HoverEvent(Action.SHOW_TEXT, new Text(TextComponent.fromLegacyText(hoverText)));
         BaseComponent[] comp = TextComponent.fromLegacyText(formatWithMessage);

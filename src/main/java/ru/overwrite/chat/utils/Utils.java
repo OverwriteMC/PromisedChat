@@ -380,4 +380,8 @@ public class Utils {
 
         return allComponents.toArray(new BaseComponent[0]);
     }
+
+    public void shutdownCaffeine() {
+        CaffeineFactory.shutdown();
+    }
 }

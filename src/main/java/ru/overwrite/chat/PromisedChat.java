@@ -78,5 +78,6 @@ public final class PromisedChat extends JavaPlugin {
     @Override
     public void onDisable() {
         getServer().getScheduler().cancelTasks(this);
+        Utils.shutdownCaffeine();
     }
 }

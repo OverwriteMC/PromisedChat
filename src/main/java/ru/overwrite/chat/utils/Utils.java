@@ -2,8 +2,6 @@ package ru.overwrite.chat.utils;
 
 import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import lombok.experimental.UtilityClass;
@@ -25,36 +23,11 @@ import java.util.regex.Pattern;
 @UtilityClass
 public class Utils {
 
-    private final Object2ObjectMap<String, ChatColor> colorCodesPermissions = new Object2ObjectOpenHashMap<>();
     private final Char2ObjectMap<String> colorCodesMap = new Char2ObjectOpenHashMap<>();
 
-    private final Object2ObjectMap<String, ChatColor> colorStylesPermissions = new Object2ObjectOpenHashMap<>();
     private final Char2ObjectMap<String> colorStylesMap = new Char2ObjectOpenHashMap<>();
 
     static {
-        colorCodesPermissions.put("pchat.color.black", ChatColor.BLACK);
-        colorCodesPermissions.put("pchat.color.dark_blue", ChatColor.DARK_BLUE);
-        colorCodesPermissions.put("pchat.color.dark_green", ChatColor.DARK_GREEN);
-        colorCodesPermissions.put("pchat.color.dark_aqua", ChatColor.DARK_AQUA);
-        colorCodesPermissions.put("pchat.color.dark_red", ChatColor.DARK_RED);
-        colorCodesPermissions.put("pchat.color.dark_purple", ChatColor.DARK_PURPLE);
-        colorCodesPermissions.put("pchat.color.gold", ChatColor.GOLD);
-        colorCodesPermissions.put("pchat.color.gray", ChatColor.GRAY);
-        colorCodesPermissions.put("pchat.color.dark_gray", ChatColor.DARK_GRAY);
-        colorCodesPermissions.put("pchat.color.blue", ChatColor.BLUE);
-        colorCodesPermissions.put("pchat.color.green", ChatColor.GREEN);
-        colorCodesPermissions.put("pchat.color.aqua", ChatColor.AQUA);
-        colorCodesPermissions.put("pchat.color.red", ChatColor.RED);
-        colorCodesPermissions.put("pchat.color.light_purple", ChatColor.LIGHT_PURPLE);
-        colorCodesPermissions.put("pchat.color.yellow", ChatColor.YELLOW);
-        colorCodesPermissions.put("pchat.color.white", ChatColor.WHITE);
-
-        colorStylesPermissions.put("pchat.style.obfuscated", ChatColor.MAGIC);
-        colorStylesPermissions.put("pchat.style.bold", ChatColor.BOLD);
-        colorStylesPermissions.put("pchat.style.strikethrough", ChatColor.STRIKETHROUGH);
-        colorStylesPermissions.put("pchat.style.underline", ChatColor.UNDERLINE);
-        colorStylesPermissions.put("pchat.style.italic", ChatColor.ITALIC);
-        colorStylesPermissions.put("pchat.style.reset", ChatColor.RESET);
 
         colorCodesMap.put('0', "black");
         colorCodesMap.put('1', "dark_blue");
@@ -200,31 +173,37 @@ public class Utils {
             return colorize(message);
         }
         final char[] chars = message.toCharArray();
-        if (chars[chars.length - 1] == '&') {
-            return message;
-        }
         for (int i = 0; i < chars.length; i++) {
-            if (chars[i] == '&' && isValidColorCharacter(chars[i + 1])) {
+            if (chars[i] == '&' && (i + 1) <= chars.length && isValidColorCharacter(chars[i + 1])) {
 
                 char code = chars[i + 1] |= 0x20;
-                String colorPerm = "pchat.color." + colorCodesMap.get(code);
-                String stylePerm = "pchat.style." + colorStylesMap.get(code);
 
-                if (player.hasPermission(colorPerm)) {
-                    ChatColor color = colorCodesPermissions.get(colorPerm);
-                    if (color != null) {
-                        chars[i] = ChatColor.COLOR_CHAR;
-                    }
+                boolean isColorChar = isColorCharacter(code);
+                boolean isStyleChar = isStyleCharacter(code);
+
+                if (isColorChar && player.hasPermission("pchat.color." + colorCodesMap.get(code))) {
+                    chars[i] = ChatColor.COLOR_CHAR;
                 }
-                if (player.hasPermission(stylePerm)) {
-                    ChatColor style = colorStylesPermissions.get(stylePerm);
-                    if (style != null) {
-                        chars[i] = ChatColor.COLOR_CHAR;
-                    }
+                if (isStyleChar && player.hasPermission("pchat.style." + colorStylesMap.get(code))) {
+                    chars[i] = ChatColor.COLOR_CHAR;
                 }
             }
         }
         return new String(chars);
+    }
+
+    private boolean isColorCharacter(char c) {
+        return switch (c) {
+            case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' -> true;
+            default -> false;
+        };
+    }
+
+    private boolean isStyleCharacter(char c) {
+        return switch (c) {
+            case 'l', 'k', 'm', 'n', 'o', 'r' -> true;
+            default -> false;
+        };
     }
 
     public final String HOVER_TEXT_PREFIX = "hoverText={";

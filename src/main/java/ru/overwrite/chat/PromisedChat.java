@@ -77,6 +77,10 @@ public final class PromisedChat extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (autoMessageManager != null) {
+            autoMessageManager.clearData();
+        }
         getServer().getScheduler().cancelTasks(this);
+        Utils.shutdownCaffeine();
     }
 }

@@ -2,12 +2,15 @@ package ru.overwrite.chat;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
+import lombok.Getter;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import ru.overwrite.chat.configuration.Config;
 import ru.overwrite.chat.configuration.data.AutoMessageSettings;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Random;
@@ -23,6 +26,10 @@ public class AutoMessageManager {
 
     private ObjectList<ObjectList<BaseComponent[]>> shuffledMessages;
 
+    @Getter
+    @Nullable
+    private BukkitTask autoMessageTask;
+
     public AutoMessageManager(PromisedChat plugin) {
         this.plugin = plugin;
         this.pluginConfig = plugin.getPluginConfig();
@@ -32,6 +39,10 @@ public class AutoMessageManager {
         randomIndex = 0;
         sequentialIndex = 0;
         shuffledMessages = null;
+        if (autoMessageTask != null) {
+            autoMessageTask.cancel();
+            autoMessageTask = null;
+        }
     }
 
     public void startMSG() {
@@ -39,7 +50,10 @@ public class AutoMessageManager {
         if (!autoMessageSettings.enabled()) {
             return;
         }
-        new BukkitRunnable() {
+        if (autoMessageTask != null) {
+            autoMessageTask.cancel();
+        }
+        autoMessageTask = new BukkitRunnable() {
             @Override
             public void run() {
                 List<BaseComponent[]> autoMessage = getAutoMessage();

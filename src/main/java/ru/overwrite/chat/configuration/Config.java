@@ -35,8 +35,19 @@ public class Config {
         timeSeconds = Utils.colorize(time.getString("seconds", " сек."));
     }
 
-    private void setupChatFormats(ConfigurationSection chatFormats) {
+    private void clearCooldownCaches() {
+        for (ChatChannel channel : prefixMap.values()) {
+            if (channel.cooldownSettings() != null && channel.cooldownSettings().playerCooldowns() != null) {
+                channel.cooldownSettings().playerCooldowns().clear();
+            }
+        }
+        if (defaultChannel != null && defaultChannel.cooldownSettings() != null && defaultChannel.cooldownSettings().playerCooldowns() != null) {
+            defaultChannel.cooldownSettings().playerCooldowns().clear();
+        }
+    }
 
+    private void setupChatFormats(ConfigurationSection chatFormats) {
+        clearCooldownCaches();
         prefixMap.clear();
 
         ChatChannel.HoverSettings globalHover = ChatChannel.HoverSettings.create(chatFormats.getConfigurationSection("hoverText"));

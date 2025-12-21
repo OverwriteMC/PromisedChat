@@ -174,7 +174,7 @@ public class Utils {
         }
         final char[] chars = message.toCharArray();
         for (int i = 0; i < chars.length; i++) {
-            if (chars[i] == '&' && (i + 1) <= chars.length && isValidColorCharacter(chars[i + 1])) {
+            if (chars[i] == '&' && (i + 1) < chars.length && isValidColorCharacter(chars[i + 1])) {
 
                 char code = chars[i + 1] |= 0x20;
 

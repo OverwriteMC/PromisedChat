@@ -25,7 +25,7 @@ public class CommandListener implements Listener {
         Player p = e.getPlayer();
         String command = cutCommand(e.getMessage());
         long time = (System.currentTimeMillis() - p.getFirstPlayed()) / 1000;
-        if (!p.hasPermission("pchat.bypass.newbie") && time <= newbieCommands.cooldown()) {
+        if (time <= newbieCommands.cooldown() && !p.hasPermission("pchat.bypass.newbie")) {
             for (String cmd : newbieCommands.commands()) {
                 if (!command.equalsIgnoreCase(cmd)) {
                     continue;

@@ -46,6 +46,11 @@ public class ChatListener implements Listener {
         String rawMessage = e.getMessage();
 
         ChatChannel channel = pluginConfig.findChannel(rawMessage);
+
+        if (!channel.equals(pluginConfig.getDefaultChannel()) && !p.hasPermission(channel.permission())) {
+            channel = pluginConfig.getDefaultChannel();
+        }
+
         String message = (channel.prefix() != '\0' && rawMessage.charAt(0) == channel.prefix())
                 ? rawMessage.substring(1).trim() : rawMessage;
 

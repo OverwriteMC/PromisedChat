@@ -11,6 +11,10 @@ commands:
   promisedchat:
     aliases: [pchat]
 permissions:
+  pchat.channel.local:
+    default: true
+  pchat.channel.global:
+    default: true
   pchat.color.*:
     children:
       pchat.color.black: true

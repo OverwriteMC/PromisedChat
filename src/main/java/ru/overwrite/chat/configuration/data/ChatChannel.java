@@ -16,7 +16,8 @@ public record ChatChannel(
         char prefix,
         CooldownSettings cooldownSettings,
         HoverSettings hover,
-        Object2ObjectMap<String, String> donatePlaceholders
+        Object2ObjectMap<String, String> donatePlaceholders,
+        String permission
 ) {
 
     public record HoverSettings(

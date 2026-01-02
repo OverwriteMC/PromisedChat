@@ -64,6 +64,8 @@ public class Config {
 
             ChatChannel.CooldownSettings channelCooldownSettings = ChatChannel.CooldownSettings.create(section, globalCooldownMessage);
 
+            String permission = section.getString("permission", "pchat.channel." + key);
+
             ChatChannel channel = new ChatChannel(
                     key,
                     section.getString("format"),
@@ -71,7 +73,8 @@ public class Config {
                     prefixChar,
                     channelCooldownSettings,
                     channelHover,
-                    channelDonates
+                    channelDonates,
+                    permission
             );
 
             if (prefixChar == '\0') {

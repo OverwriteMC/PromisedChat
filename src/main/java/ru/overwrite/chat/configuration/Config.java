@@ -55,7 +55,9 @@ public class Config {
             char prefixChar = prefixStr.isEmpty() ? '\0' : prefixStr.charAt(0);
 
             ChatChannel.HoverSettings channelHover = ChatChannel.HoverSettings.create(section.getConfigurationSection("hoverText"));
-            if (channelHover == null) channelHover = globalHover;
+            if (channelHover == null) {
+                channelHover = globalHover;
+            }
 
             Object2ObjectMap<String, String> channelDonates = parseDonates(section.getConfigurationSection("donatePlaceholders"));
             if (channelDonates.isEmpty()) {

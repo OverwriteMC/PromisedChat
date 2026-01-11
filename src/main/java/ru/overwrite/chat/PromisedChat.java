@@ -19,8 +19,8 @@ public final class PromisedChat extends JavaPlugin {
     private Permission perms;
 
     private final Config pluginConfig = new Config();
-
-    private AutoMessageManager autoMessageManager;
+    private final ChatManager chatManager = new ChatManager(this);
+    private final AutoMessageManager autoMessageManager = new AutoMessageManager(this);
 
     @Override
     public void onEnable() {
@@ -34,7 +34,6 @@ public final class PromisedChat extends JavaPlugin {
         setupPlaceholders(pluginManager);
         pluginManager.registerEvents(new ChatListener(this), this);
         pluginManager.registerEvents(new CommandListener(this), this);
-        autoMessageManager = new AutoMessageManager(this);
         autoMessageManager.startMSG();
         getCommand("promisedchat").setExecutor(new PromisedChatCommand(this));
         new Metrics(this, 20699);

@@ -53,7 +53,7 @@ public class Config {
         String globalCooldownMessage = Utils.colorize(chatFormats.getString("cooldownMessage", ""));
 
         for (String key : chatFormats.getKeys(false)) {
-            if (key.equals("hoverText") || key.equals("donatePlaceholders") || key.equals("cooldownMessage")) {
+            if (key.equals("hoverText") || key.equals("donatePlaceholders") || key.equals("cooldownMessage") || key.equals("chatPriority") || key.equals("proxy")) {
                 continue;
             }
 

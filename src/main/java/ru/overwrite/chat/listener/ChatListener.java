@@ -1,10 +1,12 @@
-package ru.overwrite.chat;
+package ru.overwrite.chat.listener;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import ru.overwrite.chat.ChatManager;
+import ru.overwrite.chat.PromisedChat;
 import ru.overwrite.chat.configuration.Config;
 
 public class ChatListener implements Listener {

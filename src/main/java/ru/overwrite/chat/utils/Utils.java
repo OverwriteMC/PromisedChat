@@ -99,6 +99,7 @@ public class Utils {
     }
 
     public boolean USE_PAPI;
+    public boolean USE_DSRV;
 
     public String replacePlaceholders(Player player, String message) {
         if (!USE_PAPI) {

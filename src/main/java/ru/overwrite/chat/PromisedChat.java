@@ -1,5 +1,6 @@
 package ru.overwrite.chat;
 
+import github.scarsz.discordsrv.DiscordSRV;
 import lombok.Getter;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
@@ -8,6 +9,9 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.ServicesManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.overwrite.chat.configuration.Config;
+import ru.overwrite.chat.listener.ChatListener;
+import ru.overwrite.chat.listener.CommandListener;
+import ru.overwrite.chat.listener.DiscordMessageListener;
 import ru.overwrite.chat.utils.Metrics;
 import ru.overwrite.chat.utils.Utils;
 
@@ -22,6 +26,8 @@ public final class PromisedChat extends JavaPlugin {
     private final ChatManager chatManager = new ChatManager(this);
     private final AutoMessageManager autoMessageManager = new AutoMessageManager(this);
 
+    private final DiscordMessageListener discordMessageListener = new DiscordMessageListener(getPluginConfig());
+
     @Override
     public void onEnable() {
         long startTime = System.currentTimeMillis();
@@ -32,6 +38,7 @@ public final class PromisedChat extends JavaPlugin {
         PluginManager pluginManager = getServer().getPluginManager();
         setupPerms(servicesManager, pluginManager);
         setupPlaceholders(pluginManager);
+        setupDiscordSRV(pluginManager);
         pluginManager.registerEvents(new ChatListener(this), this);
         pluginManager.registerEvents(new CommandListener(this), this);
         autoMessageManager.startMSG();
@@ -69,6 +76,15 @@ public final class PromisedChat extends JavaPlugin {
         getLogger().info("Плейсхолдеры подключены!");
     }
 
+    private void setupDiscordSRV(PluginManager pluginManager) {
+        if (!pluginManager.isPluginEnabled("DiscordSRV")) {
+            return;
+        }
+        DiscordSRV.api.subscribe(discordMessageListener);
+        Utils.USE_DSRV = true;
+        getLogger().info("DiscordSRV подключен!");
+    }
+
     private <T> T getProvider(ServicesManager servicesManager, Class<T> clazz) {
         final RegisteredServiceProvider<T> provider = servicesManager.getRegistration(clazz);
         return provider != null ? provider.getProvider() : null;
@@ -77,5 +93,8 @@ public final class PromisedChat extends JavaPlugin {
     @Override
     public void onDisable() {
         getServer().getScheduler().cancelTasks(this);
+        if (Utils.USE_DSRV) {
+            DiscordSRV.api.unsubscribe(discordMessageListener);
+        }
     }
 }

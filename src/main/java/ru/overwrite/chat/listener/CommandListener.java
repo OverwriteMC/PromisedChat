@@ -1,9 +1,10 @@
-package ru.overwrite.chat;
+package ru.overwrite.chat.listener;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import ru.overwrite.chat.PromisedChat;
 import ru.overwrite.chat.configuration.Config;
 import ru.overwrite.chat.configuration.data.NewbieChatSettings;
 import ru.overwrite.chat.utils.Utils;

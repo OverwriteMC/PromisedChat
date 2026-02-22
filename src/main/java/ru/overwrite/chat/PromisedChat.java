@@ -1,6 +1,5 @@
 package ru.overwrite.chat;
 
-import github.scarsz.discordsrv.DiscordSRV;
 import lombok.Getter;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;

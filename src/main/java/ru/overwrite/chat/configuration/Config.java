@@ -97,6 +97,12 @@ public class Config {
                 prefixMap.put(prefixChar, channel);
             }
         }
+        if (defaultChannel == null) {
+            for (ChatChannel channel : prefixMap.values()) {
+                defaultChannel = channel;
+                return;
+            }
+        }
     }
 
     private Object2ObjectMap<String, String> parseDonates(ConfigurationSection section) {

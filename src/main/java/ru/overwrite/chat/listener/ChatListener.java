@@ -1,11 +1,16 @@
 package ru.overwrite.chat.listener;
 
+import io.papermc.paper.chat.ChatRenderer;
+import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import ru.overwrite.chat.ChatManager;
+import ru.overwrite.chat.ChatManager.PreparedChatMessage;
 import ru.overwrite.chat.PromisedChat;
 import ru.overwrite.chat.configuration.Config;
 
@@ -23,7 +28,7 @@ public class ChatListener implements Listener {
     // Не ну а хуле делать
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onChatLowest(AsyncPlayerChatEvent e) {
+    public void onChatLowest(AsyncChatEvent e) {
         if (pluginConfig.getChatPriority() != EventPriority.LOWEST) {
             return;
         }
@@ -31,7 +36,7 @@ public class ChatListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onChatLow(AsyncPlayerChatEvent e) {
+    public void onChatLow(AsyncChatEvent e) {
         if (pluginConfig.getChatPriority() != EventPriority.LOW) {
             return;
         }
@@ -39,7 +44,7 @@ public class ChatListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void onChatNormal(AsyncPlayerChatEvent e) {
+    public void onChatNormal(AsyncChatEvent e) {
         if (pluginConfig.getChatPriority() != EventPriority.NORMAL) {
             return;
         }
@@ -47,7 +52,7 @@ public class ChatListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onChatHigh(AsyncPlayerChatEvent e) {
+    public void onChatHigh(AsyncChatEvent e) {
         if (pluginConfig.getChatPriority() != EventPriority.HIGH) {
             return;
         }
@@ -55,7 +60,7 @@ public class ChatListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onChatHighest(AsyncPlayerChatEvent e) {
+    public void onChatHighest(AsyncChatEvent e) {
         if (pluginConfig.getChatPriority() != EventPriority.HIGHEST) {
             return;
         }
@@ -63,23 +68,35 @@ public class ChatListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onChatMonitor(AsyncPlayerChatEvent e) {
+    public void onChatMonitor(AsyncChatEvent e) {
         if (pluginConfig.getChatPriority() != EventPriority.MONITOR) {
             return;
         }
         process(e);
     }
 
-    private void process(AsyncPlayerChatEvent e) {
-        Player p = e.getPlayer();
+    private void process(AsyncChatEvent e) {
+        Player player = e.getPlayer();
 
-        if (chatManager.checkNewbie(p, e)) {
+        if (chatManager.checkNewbie(player, e)) {
             return;
         }
 
-        String rawMessage = e.getMessage();
+        PreparedChatMessage prepared = chatManager.prepareChat(player, PlainTextComponentSerializer.plainText().serialize(e.message()));
+        if (prepared == null) {
+            e.setCancelled(true);
+            return;
+        }
 
-        chatManager.processChat(p, rawMessage, e);
+        e.viewers().removeIf(viewer -> shouldRemoveViewer(viewer, prepared));
+
+        Component renderedMessage = chatManager.createPaperComponent(prepared);
+        e.renderer(ChatRenderer.viewerUnaware((source, sourceDisplayName, message) -> renderedMessage));
+
+        chatManager.forwardProxy(prepared);
     }
 
+    private boolean shouldRemoveViewer(Audience viewer, PreparedChatMessage prepared) {
+        return viewer instanceof Player player && !prepared.recipients().contains(player);
+    }
 }

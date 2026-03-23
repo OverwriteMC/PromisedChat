@@ -236,7 +236,7 @@ public class Utils {
 
     private int findClosingBracket(String message, int startIndex) {
         int depth = 0;
-        for (int i = startIndex; i < message.length(); i++) {
+        for (int i = startIndex, len = message.length(); i < len; i++) {
             char c = message.charAt(i);
             if (c == '{') depth++;
             else if (c == '}') {
@@ -301,7 +301,7 @@ public class Utils {
     private ObjectList<String> getParts(String buttonContent) {
         ObjectList<String> parts = new ObjectArrayList<>();
         int start = 0, depth = 0;
-        for (int i = 0; i < buttonContent.length(); i++) {
+        for (int i = 0, len = buttonContent.length(); i < len; i++) {
             char c = buttonContent.charAt(i);
             if (c == '{') depth++;
             else if (c == '}') depth--;

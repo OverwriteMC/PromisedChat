@@ -8,7 +8,6 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.ServicesManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.overwrite.chat.configuration.Config;
-import ru.overwrite.chat.listener.ChatListener;
 import ru.overwrite.chat.listener.CommandListener;
 import ru.overwrite.chat.listener.DiscordMessageListener;
 import ru.overwrite.chat.utils.Metrics;

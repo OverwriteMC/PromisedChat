@@ -158,7 +158,7 @@ public class ChatManager {
 
     public boolean sendHover(Player p, String[] replacementList, ObjectList<Player> recipients, String formatWithMessage, ChatChannel channel) {
         ChatChannel.HoverSettings hoverSettings = channel.hover();
-        if (!hoverSettings.hoverEnabled()) {
+        if (hoverSettings == null || !hoverSettings.hoverEnabled()) {
             return false;
         }
         String hoverText = Utils.colorize(Utils.replacePlaceholders(p, Utils.replaceEach(hoverSettings.hoverMessage(), searchList, replacementList)));

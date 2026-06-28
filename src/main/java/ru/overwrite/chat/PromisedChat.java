@@ -20,9 +20,9 @@ public final class PromisedChat extends JavaPlugin {
 
     private Permission perms;
 
-    private final Config pluginConfig = new Config();
-    private final ChatManager chatManager = new ChatManager(this);
-    private final AutoMessageManager autoMessageManager = new AutoMessageManager(this);
+    private Config pluginConfig;
+    private ChatManager chatManager;
+    private AutoMessageManager autoMessageManager;
 
     private DiscordMessageListener discordMessageListener;
 
@@ -30,7 +30,10 @@ public final class PromisedChat extends JavaPlugin {
     public void onEnable() {
         long startTime = System.currentTimeMillis();
         saveDefaultConfig();
+        pluginConfig = new Config();
         pluginConfig.setupConfigs(getConfig());
+        chatManager = new ChatManager(this);
+        autoMessageManager = new AutoMessageManager(this);
         ServicesManager servicesManager = getServer().getServicesManager();
         setupChat(servicesManager);
         PluginManager pluginManager = getServer().getPluginManager();
